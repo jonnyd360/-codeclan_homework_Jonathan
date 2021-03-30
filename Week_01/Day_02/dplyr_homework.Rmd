@@ -1,0 +1,168 @@
+---
+title: "`Dplyr` Homework"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = 'center')
+```
+
+
+The data for this homework comes from an Open Data Science website called Kaggle. Kaggle has many open source datasets for you to use and most of them come with code uploaded by other users showing different ways to explore the data. It is a great way to learn about data-wrangling and analysis and if you are interested then set up your own account and get going. 
+
+For this task we will make use of their **Starbucks Calorie** dataset. You can find out more information about each dataset and what each column represents \href{https://www.kaggle.com/starbucks/starbucks-menu}{https://www.kaggle.com/starbucks/starbucks-menu}, but we have put the version you need in your data folder.   
+
+
+```{r, warning=FALSE, message=FALSE, echo = FALSE}
+library(tidyverse)
+```
+
+<br>
+
+# Question 1
+
+Load in the dataset and have a look at it. What are the dimensions, variable types, variable names, etc.?
+<br>
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+starbucks <- read_csv("data/starbucks_drinkMenu_expanded.csv")
+```
+```{r}
+print ("Starbucks List Dimentions")
+nrow (starbucks)
+ncol (starbucks)
+dim (starbucks)
+
+print ("Variables in Starbucks")
+names (starbucks)
+typeof (starbucks)
+class(starbucks) 
+
+print (" Variabes in Starbucks with the type some ways better than others")
+head (starbucks, 1)
+summary(starbucks)
+break
+
+print ("Personal test")
+for (i in starbucks){
+#  i = column name
+#   print(i)  
+# I am trying to get individual column names to try an put it side by side the typeof and maybe create a list of the names and variables, but dont know
+  print (typeof(i))
+}
+  
+```
+
+# Question 2
+
+Let's first investigate the calories of different drinks. Select the variables `Beverage_category`, `Beverage`, `Beverage prep` and `Calories` from your data. Since we are interested in the calorie content, check if there are any NA values in the data, and drop them if there are.   
+<br>
+
+```{r}
+
+Cal <- select(starbucks, Beverage_category, Beverage, Beverage_prep, Calories)
+Cal
+filter(Cal, Calories != "NA")
+nrow(Cal)
+
+# no NA vals, man i spent so much time figuring your trick out! lol
+```
+
+
+# Question 3
+
+Create a new variable (column) called `calorie_diff`, which stores the difference between 135 calories (135 calories = 10 cubes of sugar!) and the calories in each drink.
+(hint: you'll want to subtract 135 from the calories to see which drink have more or less than 10 cups of sugar). 
+<br>
+
+```{r}
+# More than 10 cubes of sugar
+mutate(Cal, calorie_diff = Calories - 135, cube_of_sugar = Calories * 10/135) %>% 
+filter(cube_of_sugar > 10)
+
+# Less than 10 cubes of sugar
+mutate(Cal, calorie_diff = Calories - 135, cube_of_sugar = Calories * 10/135) %>% 
+filter(cube_of_sugar < 10)
+```
+
+
+# Question 4
+
+Summarise the mean number of calories in each `beverage_category`.  Which 3 category of drinks have the most calories? Which 3 drinks have the least? Write a small summary of your findings.  
+
+<br>
+
+```{r}
+Cal_group <- group_by(Cal, Beverage_category)
+summarise(Cal_group, character_count = n())
+Cal2 <- mutate(Cal_group, mean_cal = mean(Calories))
+# how to get a the mean show side by side the "beverages_catagory" like how character_count = n() int he previous summarise?
+
+
+#arranging it by Calories, as i think this will be truer to which drink has higher calories
+arrange(Cal2, Calories) %>% 
+head(3)
+print ("If you are watching your weight drink Tea")
+arrange(Cal2, Calories) %>% 
+tail(3)
+print ("If you are not watching your weight, and need some calories to fully utalize the governments 1 excersice rule, drink this")
+
+```
+
+
+# Question 5
+
+Let's look at this a different way. What is the average number of calories in each `Beverage_prep` type?    
+<br>
+
+```{r}
+Cal_group2 <- group_by(Cal, Beverage_prep)
+arrange(Cal_group2, Beverage_prep) %>% 
+mutate(mean_cal = mean(Calories))
+
+```
+
+
+# Question 6
+
+Which `Beverage_prep` type contains more than the average calories of all drinks?   
+*Hint: to answer this, you'll have to first figure out what the average calories across all drinks are, and then use that as a filter for the grouped `Beverage_prep` data.*
+
+```{r}
+x <- mean(Cal2$mean_cal)
+select(Cal2, -Beverage_category, -Beverage) %>% 
+  filter(mean_cal > x) %>% 
+  arrange(Beverage_prep, desc(mean_cal))
+
+  
+```
+
+
+mean(cal_group2$mean_cal)
+
+# Question 7
+
+Which is the best type of **coffee** drink to get if you're worried about consuming too many calories? 
+
+```{r}
+arrange(Cal, Calories) %>% 
+head(4)
+```
+
+
+
+
+
+
