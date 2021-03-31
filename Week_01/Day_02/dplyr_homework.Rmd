@@ -96,6 +96,11 @@ filter(cube_of_sugar > 10)
 mutate(Cal, calorie_diff = Calories - 135, cube_of_sugar = Calories * 10/135) %>% 
 filter(cube_of_sugar < 10)
 ```
+```{r}
+drink_calories <- drinks_content %>%
+  mutate(calorie_diff = Calories - 135)
+```
+
 
 
 # Question 4
@@ -126,6 +131,14 @@ print ("If you are not watching your weight, and need some calories to fully uta
 
 Let's look at this a different way. What is the average number of calories in each `Beverage_prep` type?    
 <br>
+```{r}
+
+average_bev_prep <- drink_calories %>%
+  group_by(Beverage_prep) %>%
+  summarise(mean_cals = mean(Calories)) %>%
+  arrange(desc(mean_cals))
+
+```
 
 ```{r}
 Cal_group2 <- group_by(Cal, Beverage_prep)
@@ -148,6 +161,11 @@ select(Cal2, -Beverage_category, -Beverage) %>%
 
   
 ```
+
+```{r}
+filter(group_by_beverage_prep, mean_calories > mean(Cal2$mean_cal))
+```
+
 
 
 mean(cal_group2$mean_cal)
