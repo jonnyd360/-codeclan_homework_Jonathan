@@ -1,0 +1,167 @@
+--- title: "`dplyr` Weekend Homework" output: html_document: toc: true
+toc_float: true df_print: paged css: ../../../styles.css pdf_document: default
+---
+```{r setup, include=FALSE} knitr::opts_chunk$set(echo = TRUE, eval = TRUE) ```
+<br>
+As this is your first weekend homework, here are some tips:
+* Try to schedule some time in your weekend to work on the homework so it's not
+suddenly Monday morning and you haven't gotten started yet (it happens). *
+Remember that the weekend homework is for your learning, so try to use it as an
+opportunity to apply and consolidate everything you've learned in the week. *
+Also use it as an opportunity to spend a bit more time making your code readable
+and reproducible, by practising commenting and writing some text around your
+steps and findings. You will thank yourself later! * This will be especially
+useful for this specific weekend homework as it's very open-ended and you will
+eventually forget your own thought process * A bit obvious, but don't spend your
+entire weekend working on the homework! Remember to spend time doing things you
+enjoy and rest up ahead of the following week.
+The data for this weekend homework is scraped from Goodreads (a website all
+about books) and made publicly available on Kaggle. You can read more about the
+data [here](https://www.kaggle.com/jealousleopard/goodreadsbooks).
+# MVP
+### First steps
+Load necessary packages and read in `books.csv`. Investigate dimensions,
+variables, missing values - you know the drill!
+
+```{r}
+library(tidyverse)
+library(janitor)
+library(stringi)
+
+```
+
+```{r}
+# Loading the data set and having a first look at it
+
+books <- read_csv("data/books.csv")
+dim(books)  
+glimpse(books)
+str(books)
+
+
+head(books, 10)
+tail(books, 10)
+
+sum(is.na(books))
+nrow(books)
+nrow(drop_na(books))
+
+# Does not make sence as nrow(drop_na(books)) = 8469 (so that means in 8469 rows there is an na value)
+#view(books)
+#nrow(books)
+    
+
+```
+```{r}
+# Deleted the troubling row
+
+books <- books[1:8471,]
+
+tail(books, 5)
+
+```
+
+```{r}
+# 1st delete and combine some of the columns to work with smaller data
+
+books <- books %>% 
+  mutate(total_review_count = text_reviews_count + ratings_count) %>% 
+  select(authors, 
+         title, 
+         language_code, 
+         num_pages, 
+         average_rating, 
+         total_review_count, 
+         publication_date, 
+         publisher
+         )
+
+```
+
+```{r}
+# 2nd see if there are any missing values (only 2 rows so we will delete them), non-english values
+
+sum(is.na(books))
+
+books <- drop_na(books)
+# if_else function?
+# stri_enc_isascii(books)
+  
+# sum(is.na(books))
+
+```
+(1) Wanted to find the most common Language (needed to clean the language section a little)
+
+
+```{r}
+#glimpse(books)
+# distinct(books, authors)
+# distinct(books, language_code)
+
+books %>%
+  select(language_code) %>%
+  mutate(language = case_when(language_code == "en-US" ~ "eng",
+                              language_code == "en-GB" ~ "eng", 
+                              language_code == "en-CA" ~ "eng",
+                              TRUE                     ~ language_code)
+         ) %>% 
+  group_by(language) %>% 
+  summarise(number_of_books_in = n()) %>% 
+  arrange(desc(number_of_books))
+  
+# why does count not work?
+#summarise(book_language = count(title))
+```
+(2) Wanted to find the most popular publisher that a writer would want to publish with in general.
+
+```{r}
+
+books %>% 
+  group_by(publisher) %>% 
+  summarise(number_of_books_published = n()) %>% 
+  arrange(desc(number_of_books_published ))
+
+# Found that there are a number of similar publishing companies, So will have to figure a way how to clean them as they are not all written in the same way and doing it individualy would be too long.
+```
+(3) Wanted to find the longest book.
+
+```{r}
+
+#glimpse(books)
+books %>% 
+  select(authors, title, num_pages) %>% 
+  arrange(desc(num_pages))
+
+```
+(4) Wanted to find the most popular book.
+
+```{r}
+# used the total_review_count column that I created, assuming the most reviewed book would be the most popular one. 
+
+books %>% 
+  select(authors, title, total_review_count) %>% 
+  arrange(desc(total_review_count))
+
+```
+Wanted to find the Oldest book in this record.
+
+
+```{r}
+books %>% 
+  select(authors, title, publication_date) %>% 
+  arrange(publication_date)
+
+```
+
+
+### Up to you
+Now it's up to you... For this weekend homework there will be no specific tasks,
+just you and this dataset! Using everything you've learned this week, try to
+describe/summarise at least 5 things about this dataset - using R and the
+tidyverse of course! Feel free to find and use new functions if there is
+something that the tidyverse doesn't offer, but do try to use this homework to
+apply what you have learned this week. Be prepared to share one of your findings
+on Monday!
+### Remember
+Before you submit, go through your weekend homework and make sure your code is
+following best practices as laid out in the `coding_best_practice` lesson.
