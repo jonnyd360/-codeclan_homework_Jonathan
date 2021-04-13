@@ -1,0 +1,48 @@
+---
+title: "meteorite_analysis"
+output: html_document
+---
+
+Loading the Cleaned data in to R
+```{r}
+meteorite_clean
+```
+
+The names and years found for the 10 largest meteorites in the Data set.
+
+```{r}
+meteorite_clean %>% 
+  select(name, year, mass_g) %>% 
+  arrange(desc(mass_g)) %>% 
+  head(10)
+
+```
+
+The average mass of meteorites that were recorded falling, vs. those which were just found.
+
+```{r}
+avg_mass_fell <- meteorite_clean %>% 
+  filter(fall == "Fell") %>% 
+  summarise(mean(mass_g, na.rm = T)) %>% 
+  pull()
+
+
+avg_mass_found <- meteorite_clean %>% 
+  filter(fall == "Found") %>% 
+  summarise(mean(mass_g, na.rm = T)) %>% 
+  pull()
+
+list ("avg_mass_fell" = avg_mass_fell, "avg_mass_found" = avg_mass_found)
+
+```
+
+The number of meteorites in each year, for every year since 2000.
+```{r}
+meteorite_clean %>% 
+  filter(year >= 2000) %>% 
+  group_by(year) %>% 
+  summarise(numer_of_meteorite = n())
+
+
+```
+
