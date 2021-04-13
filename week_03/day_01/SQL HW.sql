@@ -62,7 +62,8 @@ FROM employees;
 SELECT 
 COUNT(*) number_of_pension_enrolled_employees
 FROM employees
-WHERE pension_enrol is true;
+WHERE pension_enrol is true
+AND country NOT IN ('France', 'Germany');
 
 
 /* Extension Questions */
