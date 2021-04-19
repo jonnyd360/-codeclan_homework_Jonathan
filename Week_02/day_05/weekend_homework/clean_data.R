@@ -23,3 +23,5 @@ meteorite_clean
 meteorite_clean %>% 
   verify (latitude >= -90 | latitude  <= 90) %>% 
   verify (longitude >= -180 | longitude <= 180)
+
+write.csv(meteorite_clean) 
