@@ -226,7 +226,7 @@ qb_competitors %>%
     labs (
     x = "\nYear",
     y = "Revenue\n",
-    title = "Sale last 5 years",
+    title = "Sale for the last 5 years",
     fill = "Company"
   ) +
   theme(axis.text = element_text(size = 10), plot.title = element_text(size = 14)) +
