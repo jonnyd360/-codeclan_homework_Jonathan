@@ -7,7 +7,8 @@ library(CodeClanData)
 
 ui <- fluidPage(
 dashboardPage(
-    header <- dashboardHeader(title = tags$i(tag$h1("Five Country Olympic Medal Comparison"))), # trying to make this bigger
+    header <- dashboardHeader(title = tags$i("Five Country Olympic Medal Comparison")), # trying to make this bigger
+    
     sidebar <- dashboardSidebar(
         sidebarMenu(
             menuItem("Get Set Go!", tabName = "medal", icon = icon("medal"),
@@ -26,11 +27,11 @@ dashboardPage(
         
     body <- dashboardBody(
         title = tags$i("Selected Medal Plot"), #the italics is not working
-        plotOutput("medal_plot") # want an empty plot to start with
-    )
+        plotOutput("medal_plot") # want an empty plot to start with the olympic symbols to start
     )
 )
-    
+
+)
 
 server <- function(input, output) {
     
