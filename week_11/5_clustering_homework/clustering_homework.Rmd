@@ -1,0 +1,110 @@
+---
+title: "Clustering homework"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+* You have been provided some customer data from a shopping centre. Do some exploratory analysis on the data. Comment on findings. 
+
+* We are interested in creating a marketing campaign to target customers based on their spending score and annual income. Perform a k-means clustering to find if there are meaningful clusters in the data to target the customers. 
+
+* Perform k-means clustering and chose a value of k.
+
+* Visualise the clustering for your chosen value of k.
+
+* Do you think the clustering seems a good fit for this data?
+
+* Comment on the attributes on one or two of the clusters (maybe even give them a label if you like - like in section 4.1 of the 'Segmentation & clustering intro' lesson). 
+
+
+```{r}
+
+library(tidyverse)
+library(CodeClanData)
+library(broom)
+library(janitor)
+library(factoextra)
+
+```
+
+```{r}
+
+#Loading and cleaning data
+
+customer <- read_csv("data/mall_customers.csv")
+
+customer
+
+customer <- customer %>%
+  clean_names() %>% 
+  select(customer_id, annual_income_k, spending_score_1_100)
+
+customer
+
+```
+
+```{r}
+
+# Creating a scale
+
+customer_scale <- customer %>% 
+  mutate(across(c(annual_income_k,spending_score_1_100), scale))
+
+customer_scale
+
+customer_scale %>%
+  as_tibble() %>%
+  pivot_longer(cols = c(annual_income_k,spending_score_1_100), names_to = "type", values_to = "value") %>% 
+  group_by(type) %>%
+  summarise(mean = round(mean(value)), sd = sd(value))
+
+```
+
+```{r}
+
+# Checking the number of clusters required
+
+
+fviz_nbclust(customer_scale, kmeans, method = "wss", nstart = 25)
+
+fviz_nbclust(customer_scale, kmeans, method = "silhouette", nstart = 25)
+
+fviz_nbclust(customer_scale, kmeans, method = "gap_stat")
+
+
+# 3 clusters looks optimal, mainly looking from the elbow plot
+
+```
+
+```{r}
+
+cluster_customer_scale <- kmeans(customer_scale, 3, nstart = 25)
+
+cluster_customer_scale
+
+cluster <- augment(cluster_customer_scale, customer)
+
+cluster
+
+```
+
+```{r}
+cluster %>% 
+  ggplot() +
+  aes(annual_income_k, spending_score_1_100, colour = .cluster) +
+  geom_point() 
+
+
+cluster %>% 
+  group_by(.cluster) %>%
+  summarise(mean(annual_income_k), mean(spending_score_1_100)) 
+
+
+# Looking at the data you can break it down into 3 groups. Low, medium and high income groups/clusters. There may be a case to break it down even further into 5 clusters as the data seems to have a certain shape to it. 
+
+```
+
